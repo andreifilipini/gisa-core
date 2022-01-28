@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -57,9 +58,19 @@ public class JwtTokenUtil {
 
     public Claims getAllClaims(String token) {
         return Jwts.parser()
-				.setSigningKey(secret)
+				.setSigningKey(Base64.getEncoder().encodeToString(secret.getBytes()))
 				.parseClaimsJws(token)
 				.getBody();
     }
 
+	public boolean verifyContainRole(String token, String... roles) {
+		final Claims claims = getAllClaims(token);
+		List<String> rolesJwt = claims.get(CLAIM_ROLES, List.class);
+		for(String role : roles) {
+			if(rolesJwt.contains(role)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
