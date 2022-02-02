@@ -38,7 +38,7 @@ public class JwtTokenUtil {
 		return (username.equals(login) && !isExpired(token));
 	}
 
-    private String getLogin(String token) {
+    public String getLogin(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
