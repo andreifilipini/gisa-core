@@ -8,7 +8,15 @@ import java.security.NoSuchAlgorithmException;
 
 public class CipherUtil {
 
-    public static String encrypt(String text) {
+    public static String encrypt32(String text) {
+        return encrypt(text, 32);
+    }
+
+    public static String encrypt64(String text) {
+        return encrypt(text, 64);
+    }
+
+    private static String encrypt(String text, Integer size) {
         try {
             if(StringUtil.isBlank(text)) {
 
@@ -19,7 +27,7 @@ public class CipherUtil {
 
             BigInteger digestedAsBigInteger = new BigInteger(1, textDigested);
 
-            return StringUtil.leftPadZero(NumberUtil.toHex(digestedAsBigInteger), 64);
+            return StringUtil.leftPadZero(NumberUtil.toHex(digestedAsBigInteger), size);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

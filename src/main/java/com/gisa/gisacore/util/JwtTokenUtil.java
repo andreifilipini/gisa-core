@@ -25,7 +25,7 @@ public class JwtTokenUtil {
 	public String generate(Map<String, Object> claims, String subject) {
 		return Jwts.builder()
 				.setClaims(claims)
-				.setSubject(subject)
+				.setSubject(CipherUtil.encrypt32(subject))
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + (expiresIn * 1000)))
 				.signWith(SignatureAlgorithm.HS512,
@@ -33,16 +33,17 @@ public class JwtTokenUtil {
 				.compact();
 	}
 
-	public Boolean validate(String token, String login) {
-		final String username = getLogin(token);
-		return (username.equals(login) && !isExpired(token));
+	public Boolean validate(String token, String associateId) {
+		final String encryptedAssociateId = CipherUtil.encrypt64(associateId);
+		final String subject = getSubject(token);
+		return (subject.equals(associateId) && !isExpired(token));
 	}
 
-    public String getLogin(String token) {
+    public String getSubject(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
-	private Boolean isExpired(String token) {
+	public Boolean isExpired(String token) {
 		final Date expiration = getExpirationDate(token);
 		return expiration.before(new Date());
 	}
