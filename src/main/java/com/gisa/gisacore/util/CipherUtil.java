@@ -19,7 +19,7 @@ public class CipherUtil {
     private static String encrypt(String text, Integer size) {
         try {
             if(StringUtil.isBlank(text)) {
-
+                return null;
             }
             byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
             MessageDigest digest = MessageDigest.getInstance("SHA-512");

@@ -3,8 +3,10 @@ package com.gisa.gisacore.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
@@ -12,20 +14,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-@AllArgsConstructor
+@Component
 public class JwtTokenUtil {
 
 	public static final String CLAIM_ROLES = "roles";
 	public static final String CLAIM_ISS = "iss";
 
-    private final String secret;
+	@Value("${jwt.secret}")
+    private String secret;
 
-	private final Integer expiresIn;
+	@Value("${jwt.expiresIn}")
+	private Integer expiresIn;
 
 	public String generate(Map<String, Object> claims, String subject) {
 		return Jwts.builder()
 				.setClaims(claims)
-				.setSubject(CipherUtil.encrypt32(subject))
+				.setSubject(CipherUtil.encrypt32("us_".concat(subject)))
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + (expiresIn * 1000)))
 				.signWith(SignatureAlgorithm.HS512,
@@ -73,5 +77,19 @@ public class JwtTokenUtil {
 			}
 		}
 		return false;
+	}
+
+	public String getJwtToken(HttpServletRequest request) {
+		HttpServletRequest req = request;
+		String token = req.getHeader("Authorization");
+
+		return getJwtToken(token);
+	}
+
+	public String getJwtToken(String authorization) {
+		if(StringUtil.isNotBlank(authorization)) {
+			return authorization.replace("Bearer ",  "");
+		}
+		return null;
 	}
 }
