@@ -1,5 +1,6 @@
 package com.gisa.gisacore.util;
 
+import com.gisa.gisacore.model.RoleEnum;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,6 +20,7 @@ public class JwtTokenUtil {
 
 	public static final String CLAIM_ROLES = "roles";
 	public static final String CLAIM_ISS = "iss";
+	public static final String BEARER_REPLACE = "Bearer ";
 
 	@Value("${jwt.secret}")
     private String secret;
@@ -62,17 +64,20 @@ public class JwtTokenUtil {
     }
 
     public Claims getAllClaims(String token) {
+		if(token != null && token.contains(BEARER_REPLACE)) {
+			token = token.replace(BEARER_REPLACE, "");
+		}
         return Jwts.parser()
 				.setSigningKey(Base64.getEncoder().encodeToString(secret.getBytes()))
 				.parseClaimsJws(token)
 				.getBody();
     }
 
-	public boolean verifyContainRole(String token, String... roles) {
+	public boolean verifyContainRole(String token, RoleEnum... roles) {
 		final Claims claims = getAllClaims(token);
 		List<String> rolesJwt = claims.get(CLAIM_ROLES, List.class);
-		for(String role : roles) {
-			if(rolesJwt.contains(role)) {
+		for(RoleEnum role : roles) {
+			if(rolesJwt.contains(role.name())) {
 				return true;
 			}
 		}
