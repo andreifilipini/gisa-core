@@ -17,8 +17,10 @@ public abstract class AbstractRabbitConsumer {
             execute(body);
         } catch (InfraException ie) {
             logWarn(ie.getMessage(), body);
+            throw ie;
         } catch (Exception e) {
             logError(e.getMessage(), body);
+            throw e;
         }
     }
 
